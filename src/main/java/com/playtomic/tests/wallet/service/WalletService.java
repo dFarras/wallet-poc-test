@@ -8,10 +8,8 @@ import com.playtomic.tests.wallet.repository.WalletEntity;
 import com.playtomic.tests.wallet.repository.WalletRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
 import javax.validation.Valid;
@@ -50,8 +48,6 @@ public class WalletService {
     ) {
         Assert.isTrue(BalanceOperation.ADD.equals(balanceOperationDTO.getBalanceOperation()), "");
 
-        //TODO extract this to a new bean in order to abstract this complexity
-        //TODO maybe move this to RestTemplate error handler where it should live
         try {
             final Payment payment = this.stripeService.charge(
                     balanceOperationDTO.getCreditCardNumber(),
@@ -67,31 +63,13 @@ public class WalletService {
                     payment.getId(),
                     balanceOperationDTO.getWalletDTO().getWalletId()
             );
-        } catch (final StripeAmountTooSmallException stripeAmountTooSmallException) {
-            //TODO StripeAmountTooSmallException on 422 (less than 10€)
-
-        } catch (final HttpClientErrorException httpClientErrorException) {
-            final HttpStatus statusCode = httpClientErrorException.getStatusCode();
-            if (statusCode.is4xxClientError()) {
-                //TODO HttpClientErrorException carrying an statuscode 400
-                log.error("Stripe failed due to an invalid request");
-                throw new RuntimeException(); //TODO create specific exception
-            } else if (statusCode.is5xxServerError()) {
-                //TODO HttpClientErrorException carrying an status code 500
-                log.error("Stripe failed unexpectedly");
-                throw new RuntimeException(); //TODO create specific exception
-                //we could retry since it could be something temporal
-            } else {
-                log.error("An unexpected error raised an exception");
-                throw new RuntimeException(); //TODO create specific exception
-            }
-        } catch (final ResourceAccessException resourceAccessException) {
+        }catch (final ResourceAccessException resourceAccessException) {
             //TODO ResourceAccessException when error reading from remote
-            log.error("Log we had an error reading remote");
+            log.error("Error reading remote");
             throw new RuntimeException(); //TODO create specific exception
             //could be retried
         } catch (final Exception exception) {
-            log.error("Log something unexpected happened while charging credit card!!");
+            log.error("Something unexpected happened while charging credit card!!");
             throw new RuntimeException(); //TODO create specific exception
         }
         //TODO doubt, just one wallet is expected. What happens if the query returns more than one element? It is reverted?

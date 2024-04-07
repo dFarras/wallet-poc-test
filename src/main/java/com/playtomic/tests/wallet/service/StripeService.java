@@ -2,7 +2,7 @@ package com.playtomic.tests.wallet.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;
+import lombok.NonNull;//This should not be lombok....
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -18,6 +18,7 @@ import java.net.URI;
  * A real implementation would call to String using their API/SDK.
  * This dummy implementation throws an error when trying to charge less than 10€.
  */
+//TODO create an interface to allow multiple implementations
 @Service
 public class StripeService {
 
@@ -62,8 +63,8 @@ public class StripeService {
     public void refund(@NonNull String paymentId) throws StripeServiceException {
         // Object.class because we don't read the body here.
         /**
-         * Maybe I am wrong, but it looks like this url is incorrect, so I fixed it. In a rela scenario I would check
-         * whether it is correcto or not.
+         * Maybe I am wrong, but it looks like this url is incorrect, so I fixed it. In a real scenario I would check
+         * whether it is correct or not.
          * */
         this.restTemplate.postForEntity(this.refundsUri.toString(), null, Object.class, paymentId);
     }
