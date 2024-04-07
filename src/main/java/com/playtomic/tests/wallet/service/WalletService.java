@@ -6,7 +6,6 @@ import com.playtomic.tests.wallet.data.WalletDTO;
 import com.playtomic.tests.wallet.data.WalletMapper;
 import com.playtomic.tests.wallet.repository.WalletEntity;
 import com.playtomic.tests.wallet.repository.WalletRepo;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.ResourceAccessException;
 
-import java.math.BigDecimal;
+import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,15 +30,13 @@ public class WalletService {
     /**
      * I will be adding validations in the service, although it is quite common to have them in the controller (and
      * it would definitely change nothing for this exercise) just to keep in line with hexagonal architecture.
-     * I will not be using hibernate validation since that would require me to test it with integration tests, and
-     * I do prefer to use unit tests here.
-     * */
-    /**
      * A very important validation I would add here is to ensure the user has authorization to access to the given
      * wallet and if he or she has access to this method. Again, it would be implemented here to keep in line with
-     * hexagonal architecture-
+     * hexagonal architecture
      */
-    public WalletDTO getWalletByWalletPublicId(final String walletPublicId) {
+    public WalletDTO getWalletByWalletPublicId(
+            @NotBlank final String walletPublicId
+    ) {
         if (Objects.isNull(walletPublicId)) {
             //TODO Implement here an http exception process taking advantage of Spring's controller advices
             throw new RuntimeException("Wallet public id must not be null");
@@ -47,15 +45,10 @@ public class WalletService {
         return this.walletMapper.from(wallet);
     }
 
-    public WalletDTO addFundsToWallet(final WalletBalanceOperationDTO balanceOperationDTO) {
-        //TODO move this validation to DTO through hibernate validation
-        Assert.notNull(balanceOperationDTO.getCreditCardNumber());
-        Assert.notNull(balanceOperationDTO, "");
-        Assert.notNull(balanceOperationDTO.getBalanceOperation(), "");
+    public WalletDTO addFundsToWallet(
+            @Valid final WalletBalanceOperationDTO balanceOperationDTO
+    ) {
         Assert.isTrue(BalanceOperation.ADD.equals(balanceOperationDTO.getBalanceOperation()), "");
-        Assert.notNull(balanceOperationDTO.getAmount());
-        Assert.isTrue(balanceOperationDTO.getAmount().compareTo(BigDecimal.ZERO) > 0, "");
-
 
         //TODO extract this to a new bean in order to abstract this complexity
         //TODO maybe move this to RestTemplate error handler where it should live
@@ -63,6 +56,16 @@ public class WalletService {
             final Payment payment = this.stripeService.charge(
                     balanceOperationDTO.getCreditCardNumber(),
                     balanceOperationDTO.getAmount()
+            );
+            /**
+             * I see the payment carries an id. I will log it, but it must definitely be stored in a database
+             * (with or without the indirection of an event).
+             * Credit card number is not logged since it would be against GDPR, I am not 100% sure about this point but
+             * it is better to be extra careful on these cases.
+             */
+            log.info("Payment performed with id: {} on wallet: {}",
+                    payment.getId(),
+                    balanceOperationDTO.getWalletDTO().getWalletId()
             );
         } catch (final StripeAmountTooSmallException stripeAmountTooSmallException) {
             //TODO StripeAmountTooSmallException on 422 (less than 10€)
@@ -99,7 +102,7 @@ public class WalletService {
         if(Objects.isNull(rows) || rows.size() != 1) {//TODO extract to a method
             /**
              * I will be logging wallet information, but in a real scenario it would be better to move this information
-             * as an event to a topic so that I can be properly handled.
+             * as an event to a topic so that it can be properly handled.
              * */
             log.error("More than one operation were modified!");
         }
