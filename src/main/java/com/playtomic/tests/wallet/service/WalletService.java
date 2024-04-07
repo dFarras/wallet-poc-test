@@ -23,7 +23,7 @@ import java.util.Objects;
 public class WalletService {
     private final WalletRepo walletRepo;
     private final WalletMapper walletMapper;
-    private final StripeService stripeService;
+    private final PaymentGateway paymentGateway;
 
     /**
      * I will be adding validations in the service, although it is quite common to have them in the controller (and
@@ -49,7 +49,7 @@ public class WalletService {
         Assert.isTrue(BalanceOperation.ADD.equals(balanceOperationDTO.getBalanceOperation()), "");
 
         try {
-            final Payment payment = this.stripeService.charge(
+            final Payment payment = this.paymentGateway.charge(
                     balanceOperationDTO.getCreditCardNumber(),
                     balanceOperationDTO.getAmount()
             );

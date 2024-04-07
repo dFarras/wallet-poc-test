@@ -2,7 +2,7 @@ package com.playtomic.tests.wallet.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.NonNull;//This should not be lombok....
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
@@ -18,9 +18,8 @@ import java.net.URI;
  * A real implementation would call to String using their API/SDK.
  * This dummy implementation throws an error when trying to charge less than 10€.
  */
-//TODO create an interface to allow multiple implementations
 @Service
-public class StripeService {
+public class StripeService implements PaymentGateway {
 
     @NonNull
     private URI chargesUri;
