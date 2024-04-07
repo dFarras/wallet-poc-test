@@ -4,6 +4,7 @@ import com.playtomic.tests.wallet.api.BalanceOperation;
 import com.playtomic.tests.wallet.data.WalletBalanceOperationDTO;
 import com.playtomic.tests.wallet.data.WalletDTO;
 import com.playtomic.tests.wallet.data.WalletMapper;
+import com.playtomic.tests.wallet.exceptions.ErrorCatalog;
 import com.playtomic.tests.wallet.repository.WalletEntity;
 import com.playtomic.tests.wallet.repository.WalletRepo;
 import lombok.RequiredArgsConstructor;
@@ -35,10 +36,7 @@ public class WalletService {
     public WalletDTO getWalletByWalletPublicId(
             @NotBlank final String walletPublicId
     ) {
-        if (Objects.isNull(walletPublicId)) {
-            //TODO Implement here an http exception process taking advantage of Spring's controller advices
-            throw new RuntimeException("Wallet public id must not be null");
-        }
+        Assert.notNull(walletPublicId, "Can not retrieve a wallet with null wallet public id");
         final WalletEntity wallet = this.walletRepo.findByWalletPublicId(walletPublicId);
         return this.walletMapper.from(wallet);
     }
@@ -64,15 +62,12 @@ public class WalletService {
                     balanceOperationDTO.getWalletDTO().getWalletId()
             );
         }catch (final ResourceAccessException resourceAccessException) {
-            //TODO ResourceAccessException when error reading from remote
             log.error("Error reading remote");
-            throw new RuntimeException(); //TODO create specific exception
-            //could be retried
+            throw ErrorCatalog.PAYMENT_GATEWAY_UNAVAILABLE.getException();
         } catch (final Exception exception) {
             log.error("Something unexpected happened while charging credit card!!");
-            throw new RuntimeException(); //TODO create specific exception
+            throw ErrorCatalog.INTERNAL_SERVER_ERROR.getException();
         }
-        //TODO doubt, just one wallet is expected. What happens if the query returns more than one element? It is reverted?
         final List<WalletEntity> rows = this.walletRepo.addFundsToWallet(
                 balanceOperationDTO.getAmount(),
                 balanceOperationDTO.getWalletDTO().getWalletId()
@@ -83,6 +78,7 @@ public class WalletService {
              * as an event to a topic so that it can be properly handled.
              * */
             log.error("More than one operation were modified!");
+            throw ErrorCatalog.CRITICAL_PAYMENT_ERROR.getException();
         }
         return this.walletMapper.from(rows.get(0));
     }
