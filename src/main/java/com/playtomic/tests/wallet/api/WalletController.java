@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.api;
 
+import com.playtomic.tests.wallet.data.WalletBalanceOperationDTO;
 import com.playtomic.tests.wallet.data.WalletDTO;
 import com.playtomic.tests.wallet.service.WalletService;
 import lombok.RequiredArgsConstructor;
@@ -34,20 +35,30 @@ public class WalletController {
     }
 
     @PostMapping(
+            path = "add-funds",
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    public AddFundsRS addFundsToWallet(final AddFundsRQ request) {
-     return null;
+    public WalletRS addFundsToWallet(final AddFundsRQ request) {
+        final WalletBalanceOperationDTO balanceOperationDTO = this.from(request);
+        final WalletDTO wallet = this.walletService.addFundsToWallet(balanceOperationDTO);
+        return this.from(wallet);
     }
 
-    //Create tests, we can add one no happy path since we now stripe service fails on funds less than 10€
-    //add endpoint to add funds to wallet
-
-    private WalletRS from(WalletDTO wallet) {
+    private WalletRS from(final WalletDTO wallet) {
         return WalletRS.builder()
                 .walletPublicId(wallet.getWalletPublicId())
                 .balance(wallet.getBalance())
+                .build();
+    }
+
+    private WalletBalanceOperationDTO from(final AddFundsRQ request) {
+        return WalletBalanceOperationDTO.builder()
+                .walletDTO(WalletDTO.builder()
+                        .walletPublicId(request.getWalletPublicId())
+                        .build())
+                .balanceOperation(request.getOperation())
+                .amount(request.getAmount())
                 .build();
     }
 }

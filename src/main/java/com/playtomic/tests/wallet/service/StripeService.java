@@ -53,7 +53,7 @@ public class StripeService {
      */
     public Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount) throws StripeServiceException {
         ChargeRequest body = new ChargeRequest(creditCardNumber, amount);
-        return restTemplate.postForObject(chargesUri, body, Payment.class);
+        return this.restTemplate.postForObject(this.chargesUri, body, Payment.class);
     }
 
     /**
@@ -61,7 +61,11 @@ public class StripeService {
      */
     public void refund(@NonNull String paymentId) throws StripeServiceException {
         // Object.class because we don't read the body here.
-        restTemplate.postForEntity(chargesUri.toString(), null, Object.class, paymentId);
+        /**
+         * Maybe I am wrong, but it looks like this url is incorrect, so I fixed it. In a rela scenario I would check
+         * whether it is correcto or not.
+         * */
+        this.restTemplate.postForEntity(this.refundsUri.toString(), null, Object.class, paymentId);
     }
 
     @AllArgsConstructor

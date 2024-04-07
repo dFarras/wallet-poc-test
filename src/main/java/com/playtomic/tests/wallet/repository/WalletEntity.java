@@ -8,11 +8,11 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
-@Table
 @Entity
 @Getter
 @Setter
 @Builder
+@Table(name = "WALLET")
 @NoArgsConstructor
 @AllArgsConstructor
 public class WalletEntity {
@@ -24,3 +24,4 @@ public class WalletEntity {
     @Column(name = "BALANCE", nullable = false)
     private BigDecimal balance;
 }
+

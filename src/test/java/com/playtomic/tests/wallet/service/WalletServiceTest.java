@@ -34,13 +34,16 @@ class WalletServiceTest {
      * */
     @Spy
     private WalletMapper walletMapper;
+    @Mock
+    private StripeService stripeService;
     private WalletService walletService;
 
     @BeforeEach
     public void setup() {
         this.walletService = new WalletService(
                 this.walletRepo,
-                this.walletMapper
+                this.walletMapper,
+                this.stripeService
         );
     }
 
