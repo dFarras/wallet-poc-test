@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.ResourceAccessException;
 
 import javax.validation.Valid;
@@ -23,6 +24,7 @@ import java.util.Objects;
 
 @Slf4j
 @Service
+@Validated
 @RequiredArgsConstructor
 public class WalletService {
     private final WalletRepo walletRepo;
@@ -40,7 +42,6 @@ public class WalletService {
     public WalletDTO getWalletByWalletPublicId(
             @NotBlank final String walletPublicId
     ) {
-        Assert.notNull(walletPublicId, "Can not retrieve a wallet with null wallet public id");
         final WalletEntity wallet = this.walletRepo.findByWalletPublicId(walletPublicId);
         if (Objects.isNull(wallet)) {
             throw ErrorCatalog.RESOURCE_NOT_FOUND.getException();

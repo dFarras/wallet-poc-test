@@ -13,7 +13,6 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WalletDTO {
-    @NotNull
     @Min(0)
     private Long walletId;
     @NotBlank

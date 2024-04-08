@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * This class should be a record in Java 21
@@ -14,7 +15,7 @@ public class AddFundsRQ {
     private final String walletPublicId;
     private final String creditCardNumber;
     private final BalanceOperation operation;
-    private final BigDecimal amount;
+    private BigDecimal amount;
 
     @JsonCreator
     public AddFundsRQ(
@@ -26,6 +27,8 @@ public class AddFundsRQ {
         this.walletPublicId = walletPublicId;
         this.creditCardNumber = creditCardNumber;
         this.operation = operation;
-        this.amount = new BigDecimal(amount);
+        if (Objects.nonNull(amount)) {
+            this.amount = new BigDecimal(amount);
+        }
     }
 }

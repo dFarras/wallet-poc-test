@@ -1,0 +1,70 @@
+{
+	"info": {
+		"_postman_id": "374edd30-d84f-4e57-8213-b2950f3817b3",
+		"name": "playtomic",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3713527"
+	},
+	"item": [
+		{
+			"name": "find wallet by id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/wallet/withfunds",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"wallet",
+						"withfunds"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "find wallet by id Copy",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"walletId\": \"nofunds\",\r\n    \"operation\": \"ADD\",\r\n    \"creditCardNumber\": \"1234\",\r\n    \"amount\": \"12.0\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8090/wallet/add-funds",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"wallet",
+						"add-funds"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
