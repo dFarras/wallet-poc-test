@@ -39,7 +39,7 @@ public class WalletController {
             consumes = {MediaType.APPLICATION_JSON_VALUE},
             produces = {MediaType.APPLICATION_JSON_VALUE}
     )
-    public WalletRS addFundsToWallet(final AddFundsRQ request) {
+    public WalletRS addFundsToWallet(@RequestBody final AddFundsRQ request) {
         final WalletBalanceOperationDTO balanceOperationDTO = this.from(request);
         final WalletDTO wallet = this.walletService.addFundsToWallet(balanceOperationDTO);
         return this.from(wallet);
@@ -58,6 +58,7 @@ public class WalletController {
                         .walletPublicId(request.getWalletPublicId())
                         .build())
                 .balanceOperation(request.getOperation())
+                .creditCardNumber(request.getWalletPublicId())
                 .amount(request.getAmount())
                 .build();
     }

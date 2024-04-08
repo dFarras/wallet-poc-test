@@ -6,5 +6,5 @@ import java.math.BigDecimal;
 
 public interface PaymentGateway {
     Payment charge(@NonNull String creditCardNumber, @NonNull BigDecimal amount) throws StripeServiceException;
-    public void refund(@NonNull String paymentId) throws StripeServiceException;
+    void refund(@NonNull String paymentId) throws StripeServiceException;
 }

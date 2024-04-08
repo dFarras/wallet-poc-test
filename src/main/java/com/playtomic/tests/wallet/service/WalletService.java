@@ -10,6 +10,9 @@ import com.playtomic.tests.wallet.repository.WalletRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -33,53 +36,66 @@ public class WalletService {
      * wallet and if he or she has access to this method. Again, it would be implemented here to keep in line with
      * hexagonal architecture
      */
+    @Transactional(readOnly = true)
     public WalletDTO getWalletByWalletPublicId(
             @NotBlank final String walletPublicId
     ) {
         Assert.notNull(walletPublicId, "Can not retrieve a wallet with null wallet public id");
         final WalletEntity wallet = this.walletRepo.findByWalletPublicId(walletPublicId);
+        if (Objects.isNull(wallet)) {
+            throw ErrorCatalog.RESOURCE_NOT_FOUND.getException();
+        }
         return this.walletMapper.from(wallet);
     }
 
+    @Transactional(
+            isolation = Isolation.REPEATABLE_READ,
+            propagation = Propagation.REQUIRES_NEW
+    )
     public WalletDTO addFundsToWallet(
             @Valid final WalletBalanceOperationDTO balanceOperationDTO
     ) {
         Assert.isTrue(BalanceOperation.ADD.equals(balanceOperationDTO.getBalanceOperation()), "");
 
+        final String walletPublicId = balanceOperationDTO.getWalletDTO().getWalletPublicId();
+        final WalletEntity wallet = this.walletRepo.findByWalletPublicId(walletPublicId);
+        if (Objects.isNull(wallet)) {
+            throw ErrorCatalog.RESOURCE_NOT_FOUND.getException();
+        }
+
+        this.chargeCreditCard(balanceOperationDTO);
+
+        wallet.setBalance(wallet.getBalance().add(balanceOperationDTO.getAmount()));
+        final WalletEntity result = this.walletRepo.save(wallet);
+
+        return this.walletMapper.from(result);
+    }
+
+    private void chargeCreditCard(final WalletBalanceOperationDTO balanceOperationDTO) {
         try {
             final Payment payment = this.paymentGateway.charge(
                     balanceOperationDTO.getCreditCardNumber(),
                     balanceOperationDTO.getAmount()
             );
-            /**
+            /*
              * I see the payment carries an id. I will log it, but it must definitely be stored in a database
              * (with or without the indirection of an event).
-             * Credit card number is not logged since it would be against GDPR, I am not 100% sure about this point but
+             * Credit card number is not logged since it would be against GDPR, I am not 100% sure about this point, but
              * it is better to be extra careful on these cases.
              */
-            log.info("Payment performed with id: {} on wallet: {}",
-                    payment.getId(),
-                    balanceOperationDTO.getWalletDTO().getWalletId()
+            log.info("Payment performed with id: {}",
+                    payment.getId()
             );
-        }catch (final ResourceAccessException resourceAccessException) {
+        } catch (final ResourceAccessException resourceAccessException) {
             log.error("Error reading remote");
             throw ErrorCatalog.PAYMENT_GATEWAY_UNAVAILABLE.getException();
         } catch (final Exception exception) {
             log.error("Something unexpected happened while charging credit card!!");
             throw ErrorCatalog.INTERNAL_SERVER_ERROR.getException();
         }
-        final List<WalletEntity> rows = this.walletRepo.addFundsToWallet(
-                balanceOperationDTO.getAmount(),
-                balanceOperationDTO.getWalletDTO().getWalletId()
-        );
-        if(Objects.isNull(rows) || rows.size() != 1) {//TODO extract to a method
-            /**
-             * I will be logging wallet information, but in a real scenario it would be better to move this information
-             * as an event to a topic so that it can be properly handled.
-             * */
-            log.error("More than one operation were modified!");
-            throw ErrorCatalog.CRITICAL_PAYMENT_ERROR.getException();
-        }
-        return this.walletMapper.from(rows.get(0));
+    }
+
+    private static boolean isMoreThanOneWalletModified(List<WalletEntity> rows) {
+        return Objects.isNull(rows) || rows.size() > 1;
     }
 }

@@ -11,9 +11,10 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCatalog {
     GENERIC_BAD_REQUEST(HttpStatus.BAD_REQUEST, "INVALID-001", "Invalid request, please check all fields are valid."),
     FEW_FUNDS(HttpStatus.BAD_REQUEST, "INVALID-002", "Payment gateway only accepts charges over 10€."),
+    RESOURCE_NOT_FOUND(HttpStatus.NOT_FOUND, "INVALID-003", "Requested resource does not exist"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL-001", "Uncontrolled error."),
-    PAYMENT_GATEWAY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "INTERNAL-002", "Payment gateway is unavailable, please try again later."),
-    CRITICAL_PAYMENT_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "INTERNAL-002", "Payment gateway is unavailable, please try again later.");
+    PAYMENT_GATEWAY_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "INTERNAL-002", "Payment gateway is unavailable, please try again later.");
+    //CRITICAL_PAYMENT_ERROR(HttpStatus.SERVICE_UNAVAILABLE, "INTERNAL-002", "Payment gateway is unavailable, please try again later.");
 
     private final HttpStatus httpStatus;
     private final String code;

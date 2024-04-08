@@ -19,19 +19,31 @@ public class HttpExceptionController {
                 .genericMessage(httpException.getGenericMessage())
                 .clarifiedMessage(httpException.getClarifiedMessage())
                 .build();
-        log.error(EXCEPTION_DETAIL, httpException);
+        log.info(EXCEPTION_DETAIL, httpException);
         return new ResponseEntity<>(exceptionResponse, httpException.getHttpStatus());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<HttpExceptionResponse> handleIllegalArgumentException(
+            final IllegalArgumentException illegalArgumentException) {
+        final ErrorCatalog error = ErrorCatalog.GENERIC_BAD_REQUEST;
+        final HttpExceptionResponse exceptionResponse = HttpExceptionResponse.builder()
+                .code(error.getCode())
+                .genericMessage(error.getMessage())
+                .build();
+        log.info(EXCEPTION_DETAIL, illegalArgumentException);
+        return new ResponseEntity<>(exceptionResponse, error.getHttpStatus());
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<HttpExceptionResponse> handleInvalidReferenceException(
-            final Exception invalidReferenceException) {
+    public ResponseEntity<HttpExceptionResponse> handleException(
+            final Exception exception) {
         final ErrorCatalog error = ErrorCatalog.INTERNAL_SERVER_ERROR;
         final HttpExceptionResponse exceptionResponse = HttpExceptionResponse.builder()
                 .code(error.getCode())
                 .genericMessage(error.getMessage())
                 .build();
-        log.error(EXCEPTION_DETAIL, invalidReferenceException);
+        log.info(EXCEPTION_DETAIL, exception);
         return new ResponseEntity<>(exceptionResponse, error.getHttpStatus());
     }
 

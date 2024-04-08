@@ -12,16 +12,19 @@ import java.math.BigDecimal;
 @Getter
 public class AddFundsRQ {
     private final String walletPublicId;
+    private final String creditCardNumber;
     private final BalanceOperation operation;
     private final BigDecimal amount;
 
     @JsonCreator
     public AddFundsRQ(
             @JsonProperty("walletId") final String walletPublicId,
+            final String creditCardNumber,
             final BalanceOperation operation,
             final BigDecimal amount
     ) {
         this.walletPublicId = walletPublicId;
+        this.creditCardNumber = creditCardNumber;
         this.operation = operation;
         this.amount = amount;
     }
