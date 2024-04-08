@@ -9,13 +9,13 @@ import java.util.Objects;
 
 /**
  * This class should be a record in Java 21
- * */
+ */
 @Getter
 public class AddFundsRQ {
     private final String walletPublicId;
     private final String creditCardNumber;
     private final BalanceOperation operation;
-    private BigDecimal amount;
+    private final String amount;
 
     @JsonCreator
     public AddFundsRQ(
@@ -27,8 +27,6 @@ public class AddFundsRQ {
         this.walletPublicId = walletPublicId;
         this.creditCardNumber = creditCardNumber;
         this.operation = operation;
-        if (Objects.nonNull(amount)) {
-            this.amount = new BigDecimal(amount);
-        }
+        this.amount = amount;
     }
 }

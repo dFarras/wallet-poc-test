@@ -1,5 +1,6 @@
 package com.playtomic.tests.wallet.api;
 
+import com.playtomic.tests.wallet.data.BigDecimalConverter;
 import com.playtomic.tests.wallet.data.WalletBalanceOperationDTO;
 import com.playtomic.tests.wallet.data.WalletDTO;
 import com.playtomic.tests.wallet.service.WalletService;
@@ -8,12 +9,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @Slf4j
 @RestController
 @RequestMapping(path = "wallet")
 @RequiredArgsConstructor
 public class WalletController {
     private final WalletService walletService;
+    private final BigDecimalConverter bigDecimalConverter;
 
     /*
      * I do not understand the purpose of this endpoint.
@@ -46,20 +50,22 @@ public class WalletController {
     }
 
     private WalletRS from(final WalletDTO wallet) {
+        final String amount = this.bigDecimalConverter.from(wallet.getBalance());
         return WalletRS.builder()
                 .walletPublicId(wallet.getWalletPublicId())
-                .balance(wallet.getBalance().toPlainString())
+                .balance(amount)
                 .build();
     }
 
     private WalletBalanceOperationDTO from(final AddFundsRQ request) {
+        final BigDecimal amount = this.bigDecimalConverter.from(request.getAmount());
         return WalletBalanceOperationDTO.builder()
                 .walletDTO(WalletDTO.builder()
                         .walletPublicId(request.getWalletPublicId())
                         .build())
                 .balanceOperation(request.getOperation())
                 .creditCardNumber(request.getCreditCardNumber())
-                .amount(request.getAmount())
+                .amount(amount)
                 .build();
     }
 }
