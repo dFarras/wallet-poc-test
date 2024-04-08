@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 public class WalletController {
     private final WalletService walletService;
 
-    /**
+    /*
      * I do not understand the purpose of this endpoint.
      * I do not delete it since it is not required, but in a real scenario I would ask for its purpose since, if I am
      * not wrong we could get rid of it.
@@ -58,7 +58,7 @@ public class WalletController {
                         .walletPublicId(request.getWalletPublicId())
                         .build())
                 .balanceOperation(request.getOperation())
-                .creditCardNumber(request.getWalletPublicId())
+                .creditCardNumber(request.getCreditCardNumber())
                 .amount(request.getAmount())
                 .build();
     }
