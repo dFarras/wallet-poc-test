@@ -34,7 +34,7 @@ public class WalletApplicationIT {
 						.accept(MediaType.APPLICATION_JSON))
 				.andDo(print())
 				.andExpect(status().isOk())
-				.andExpect(MockMvcResultMatchers.jsonPath("$.balance").value("0.0"))
+				.andExpect(MockMvcResultMatchers.jsonPath("$.balance").value("0.00"))
 				.andExpect(MockMvcResultMatchers.jsonPath("$.walletId").value("nofunds"));
 	}
 }

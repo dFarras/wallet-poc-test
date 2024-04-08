@@ -48,7 +48,7 @@ public class WalletController {
     private WalletRS from(final WalletDTO wallet) {
         return WalletRS.builder()
                 .walletPublicId(wallet.getWalletPublicId())
-                .balance(wallet.getBalance())
+                .balance(wallet.getBalance().toPlainString())
                 .build();
     }
 

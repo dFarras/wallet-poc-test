@@ -12,5 +12,5 @@ import java.math.BigDecimal;
 public class WalletRS {
     @JsonProperty("walletId")
     private final String walletPublicId;
-    private final BigDecimal balance;
+    private final String balance;
 }

@@ -21,11 +21,11 @@ public class AddFundsRQ {
             @JsonProperty("walletId") final String walletPublicId,
             final String creditCardNumber,
             final BalanceOperation operation,
-            final BigDecimal amount
+            final String amount
     ) {
         this.walletPublicId = walletPublicId;
         this.creditCardNumber = creditCardNumber;
         this.operation = operation;
-        this.amount = amount;
+        this.amount = new BigDecimal(amount);
     }
 }

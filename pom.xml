@@ -19,7 +19,7 @@
 
 	<!-- I have tried to upgrade the project to Java 21 and spring boot 3 to take advantage of records and to fix
 	known CVEs but to do it I would have to change parts on the structure of the project. But I think it could
-	be considered as overengineering, and therefore I kept this old versions instead. -->
+	be considered as overengineering, and therefore I kept this version instead. -->
 	<properties>
 		<java.version>11</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
