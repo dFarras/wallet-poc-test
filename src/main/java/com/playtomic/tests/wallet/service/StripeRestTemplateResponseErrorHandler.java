@@ -21,28 +21,42 @@ public class StripeRestTemplateResponseErrorHandler implements ResponseErrorHand
             throw ErrorCatalog.INTERNAL_SERVER_ERROR.getException();
         }
         if (statusCode.is4xxClientError()) {
-            /**
-             * I could definitely validate the amount at service level, but I think it is not a good idea since we can
-             * have more than one implementation and not all would have this limitation
-             */
-            if (statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
-                log.error("The amount is less than 10€");
-                /**
-                 * I have decided to implement this assuming that the user could select a different payment gateway,
-                 * otherwise it would be pointless to show the implementation used
-                 */
-                throw ErrorCatalog.FEW_FUNDS.getException("For charges less than 10€ please choose a different payment gateway");
-            } else {
-                log.error("Stripe failed due to an invalid request");
-                throw ErrorCatalog.GENERIC_BAD_REQUEST.getException();
-            }
+            this.handle400Error(statusCode);
         } else if (statusCode.is5xxServerError()) {
-            log.error("Stripe failed unexpectedly");
-            throw ErrorCatalog.PAYMENT_GATEWAY_UNAVAILABLE.getException();
+            this.handle500Error();
         } else {
-            log.error("unexpected error raised an exception");
-            throw ErrorCatalog.INTERNAL_SERVER_ERROR.getException();
+            this.handleUnhandledError();
         }
+    }
+
+    private void handle400Error(
+            final HttpStatus statusCode
+    ) {
+        /*
+         * I could definitely validate the amount at service level, but I think it is not a good idea since we can
+         * have more than one implementation and not all would have this limitation
+         */
+        if (statusCode == HttpStatus.UNPROCESSABLE_ENTITY) {
+            log.error("The amount is less than 10€");
+            /*
+             * I have decided to implement this assuming that the user could select a different payment gateway,
+             * otherwise it would be pointless to show the implementation used
+             */
+            throw ErrorCatalog.FEW_FUNDS.getException("For charges less than 10€ please choose a different payment gateway");
+        } else {
+            log.error("Stripe failed due to an invalid request");
+            throw ErrorCatalog.GENERIC_BAD_REQUEST.getException();
+        }
+    }
+
+    private void handle500Error() {
+        log.error("Stripe failed unexpectedly");
+        throw ErrorCatalog.PAYMENT_GATEWAY_UNAVAILABLE.getException();
+    }
+
+    private void handleUnhandledError() {
+        log.error("unexpected error raised an exception");
+        throw ErrorCatalog.INTERNAL_SERVER_ERROR.getException();
     }
 
     @Override
