@@ -20,7 +20,7 @@ public class HttpExceptionController {
                 .genericMessage(httpException.getGenericMessage())
                 .clarifiedMessage(httpException.getClarifiedMessage())
                 .build();
-        log.info(EXCEPTION_DETAIL, httpException);
+        log.error(EXCEPTION_DETAIL, httpException);
         return new ResponseEntity<>(exceptionResponse, httpException.getHttpStatus());
     }
 
@@ -32,7 +32,7 @@ public class HttpExceptionController {
                 .code(error.getCode())
                 .genericMessage(error.getMessage())
                 .build();
-        log.info(EXCEPTION_DETAIL, illegalArgumentException);
+        log.error(EXCEPTION_DETAIL, illegalArgumentException);
         return new ResponseEntity<>(exceptionResponse, error.getHttpStatus());
     }
 
@@ -45,7 +45,7 @@ public class HttpExceptionController {
                 .code(error.getCode())
                 .genericMessage(error.getMessage())
                 .build();
-        log.info(EXCEPTION_DETAIL, constraintViolationException);
+        log.error(EXCEPTION_DETAIL, constraintViolationException);
         return new ResponseEntity<>(exceptionResponse, error.getHttpStatus());
     }
 
@@ -57,7 +57,7 @@ public class HttpExceptionController {
                 .code(error.getCode())
                 .genericMessage(error.getMessage())
                 .build();
-        log.info(EXCEPTION_DETAIL, exception);
+        log.error(EXCEPTION_DETAIL, exception);
         return new ResponseEntity<>(exceptionResponse, error.getHttpStatus());
     }
 
